@@ -1,3 +1,5 @@
+import grails.util.Environment
+
 class NexmoGrailsPlugin {
   // the plugin version
   def version = "0.1"
@@ -24,34 +26,17 @@ and send text messages, as well as sending automated voice calls.
   // Online location of the plugin's browseable source code.
   def scm = [ url: "https://github.com/caseyscarborough/nexmo" ]
 
-  def doWithWebDescriptor = { xml ->
-    // TODO Implement additions to web.xml (optional), this event occurs before
-  }
-
   def doWithSpring = {
-    // TODO Implement runtime spring config (optional)
+    mergeConfig(application)
   }
 
-  def doWithDynamicMethods = { ctx ->
-    // TODO Implement registering dynamic methods to classes (optional)
+  // Merges the Nexmo Configuration with the application's configuration
+  protected mergeConfig(application) {
+    application.config.merge(loadConfig(application))
   }
 
-  def doWithApplicationContext = { ctx ->
-    // TODO Implement post initialization spring config (optional)
-  }
-
-  def onChange = { event ->
-    // TODO Implement code that is executed when any artefact that this plugin is
-    // watching is modified and reloaded. The event contains: event.source,
-    // event.application, event.manager, event.ctx, and event.plugin.
-  }
-
-  def onConfigChange = { event ->
-    // TODO Implement code that is executed when the project configuration changes.
-    // The event is the same as for 'onChange'.
-  }
-
-  def onShutdown = { event ->
-    // TODO Implement code that is executed when the application shuts down (optional)
+  // Load the configuration from the NexmoConfig.groovy
+  protected loadConfig(application) {
+    new ConfigSlurper(Environment.current.name).parse(application.classLoader.loadClass("NexmoConfig"))
   }
 }
