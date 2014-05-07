@@ -23,3 +23,6 @@ grails-app/conf/DataSource.groovy
 
 # Ignore Credentials File
 grails-app/conf/Credentials.groovy
+
+# Ignore symlink for running forked Grails tests in Intellij
+lib/intellij-grails-rt.jar
