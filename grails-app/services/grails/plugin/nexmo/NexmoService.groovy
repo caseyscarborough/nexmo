@@ -17,17 +17,16 @@ class NexmoService {
     def http = new HTTPBuilder(config?.endpoint)
     def requestBody = [to: to, text: text, from: from, api_key: config?.api?.key, api_secret: config?.api?.secret]
 
-    log.info("Attempting to send SMS with the following data:\n${requestBody}")
     http.request(POST) {
-      uri.path = "/"
+      uri.path = "/sms/${config?.format}"
       send(URLENC, requestBody)
 
       response.success = { resp, data ->
-        log.info("SMS was successfully sent.\n${data}")
+        log.info("SMS was successfully sent.")
         return data
       }
       response.failure = { resp, data ->
-        log.info("An error occurred sending the SMS.\n${data}")
+        log.info("An error occurred sending the SMS.")
         return data
       }
     }
