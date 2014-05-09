@@ -58,7 +58,7 @@ class NexmoService {
 
   /**
    * Sends a phone call using Nexmo's text-to-speech API.
-   * @param to The phone number to send the call to
+   * @param to The phone number to send the call to, in International Format
    * @param text The message to deliver during the call
    * @param from (optional) The phone number to send the call from. Must be a voice enabled inbound number associated with your account
    * @return Map The data returned from the request
