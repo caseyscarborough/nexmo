@@ -11,7 +11,7 @@ class NexmoService {
   def grailsApplication
   def messageSource
 
-  def sendSms(String to, String text, String from=config?.sms?.default_from) {
+  def sendSms(String to, String text, String from=config?.sms?.default_from) throws NexmoException {
     if (!to || !text || !from) {
       log.error("A required parameter was not supplied. Not sending SMS.")
       throw new NexmoException("A required parameter was not supplied. Not sending SMS.")
@@ -25,18 +25,19 @@ class NexmoService {
       send(URLENC, requestBody)
 
       response.success = { resp, data ->
-        def statusCode = data?.messages[0]?.status
+        def message = data?.messages[0]
+        def statusCode = message?.status
         if (statusCode != "0") {
-          def error = data?.messages[0]?."error-text" ?: getMessage(statusCode, "An error occurred sending the SMS.")
+          def error = message?."error-text" ?: getMessage(statusCode, "An error occurred sending the SMS.")
           log.error("An error occurred sending the SMS: ${error}")
           throw new NexmoException(error)
         }
         log.info("SMS was successfully sent.")
-        return data
+        return [status: message?.status, id: message?."message-id"]
       }
       response.failure = { resp, data ->
         log.error("An error occurred sending the SMS.")
-        return false
+        throw new NexmoException("A ${resp?.status} error was encountered.")
       }
     }
   }
@@ -46,6 +47,9 @@ class NexmoService {
   }
 
   private String getMessage(String code, String defaultMessage) {
-    return messageSource.getMessage("nexmo.sms.status.${code}", [].toArray(), defaultMessage, LocaleContextHolder.locale)
+    if (code) {
+      return messageSource.getMessage("nexmo.sms.status.${code}", [].toArray(), defaultMessage, LocaleContextHolder.locale)
+    }
+    return defaultMessage
   }
 }

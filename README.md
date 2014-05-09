@@ -2,6 +2,18 @@
 
 This plugin gives any Grails application the ability to send SMS messages using [Nexmo's API](https://www.nexmo.com/).
 
+## Methods
+
+#### [__sendSms(String to, String text, String from)__](https://github.com/caseyscarborough/nexmo/blob/master/grails-app/services/grails/plugin/nexmo/NexmoService.groovy#L14)
+
+* Parameters
+  * __to__ - The mobile number in international format
+  * __text__ - Body of the text message (with a maximum length of 3200 characters)
+  * __from__ (optional) - The number to send from, defaults to the `default_from` number in [`NexmoConfig.groovy`](https://github.com/caseyscarborough/nexmo/blob/master/grails-app/conf/NexmoConfig.groovy).
+* Returns
+  * __status__ - The status code of the message
+  * __id__ - The ID of the message
+
 ## Usage
 
 Set the configuration in your `Config.groovy` file, as shown below:
@@ -21,6 +33,8 @@ nexmo {
 
 You can then proceed to use the plugin in a Grails controller or service by injecting the NexmoService bean, and calling the `sendSms` method.
 
+### Example
+
 ```groovy
 import grails.converters.JSON
 
@@ -30,36 +44,19 @@ class ExampleController {
   def nexmoService
 
   def index() {
-    // Send the message "What up!" to 1-500-123-4567
-    def result = nexmoService.sendSms("15001234567", "What up!")
-    render result as JSON
+    def result
+    try {
+      // Send the message "What up!" to 1-500-123-4567
+      result = nexmoService.sendSms("15001234567", "What up!")
+    catch (NexmoException e) {
+      // Handle error if failure
+    }
   }
 }
 ```
 
-The `sendSms` method returns a Groovy map containing the following information:
-
-* __message-count__: The number of messages sent
-* __messages__
-  * __to__: The number the message was sent to
-  * __message-id__: The ID of the message
-  * __status__: The status code of the result
-  * __remaining-balance__: The remaining balance on the Nexmo account
-  * __message-price__: The cost of the message
-
 Here is an example response:
 
 ```groovy
-[
-  "message-count": "1",
-  "messages": [
-    [
-      "to": "15005551234",
-      "message-id": "020000002C64ADA0",
-      "status": "0",
-      "remaining-balance": "1.98560000",
-      "message-price": "0.00480000"
-    ]
-  ]
-]
+[ status: "0", id: "00000125" ]
 ```
