@@ -21,7 +21,7 @@ class NexmoServiceSpec extends Specification {
     def result = service.sendSms(grailsApplication.config?.nexmo?.test?.phone_number, "This is a test from Grails!")
 
     then:
-    result['message-count'] == "1"
+    result.'message-count' == "1"
     result.messages[0].status == "0"
   }
 }
