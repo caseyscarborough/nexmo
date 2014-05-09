@@ -6,11 +6,27 @@ import org.springframework.context.i18n.LocaleContextHolder as LCH
 import static groovyx.net.http.ContentType.URLENC
 import static groovyx.net.http.Method.POST
 
+/**
+ * Contains the methods used for interacting with Nexmo's API.
+ *
+ * @author Casey Scarborough
+ */
 class NexmoService {
 
+  /** Dependency injection for grailsApplication */
   def grailsApplication
+
+  /** Dependency injection for messageSource */
   def messageSource
 
+  /**
+   * Send an SMS message to a mobile device.
+   * @param to The phone number to send the message to, in International Format
+   * @param text The text of the message
+   * @param from The phone number to send the message from
+   * @return Map The data returned from the request
+   * @throws NexmoException
+   */
   def sendSms(String to, String text, String from=config?.sms?.default_from) throws NexmoException {
     if (!to || !text || !from) {
       throw new NexmoException(getMessage("nexmo.sms.error.missing.param"))
@@ -40,6 +56,14 @@ class NexmoService {
     }
   }
 
+  /**
+   * Sends a phone call using Nexmo's text-to-speech API.
+   * @param to The phone number to send the call to
+   * @param text The message to deliver during the call
+   * @param from (optional) The phone number to send the call from. Must be a voice enabled inbound number associated with your account
+   * @return Map The data returned from the request
+   * @throws NexmoException
+   */
   def call(String to, String text, String from="") throws NexmoException {
     if (!to || !text) {
       throw new NexmoException(getMessage("nexmo.call.error.missing.param"))
