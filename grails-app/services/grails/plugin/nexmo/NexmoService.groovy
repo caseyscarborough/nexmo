@@ -1,7 +1,7 @@
 package grails.plugin.nexmo
 
 import groovyx.net.http.HTTPBuilder
-import org.springframework.context.i18n.LocaleContextHolder
+import org.springframework.context.i18n.LocaleContextHolder as LCH
 
 import static groovyx.net.http.ContentType.URLENC
 import static groovyx.net.http.Method.POST
@@ -13,8 +13,7 @@ class NexmoService {
 
   def sendSms(String to, String text, String from=config?.sms?.default_from) throws NexmoException {
     if (!to || !text || !from) {
-      log.error("A required parameter was not supplied. Not sending SMS.")
-      throw new NexmoException("A required parameter was not supplied. Not sending SMS.")
+      throw new NexmoException(getMessage("nexmo.sms.error.missing.param"))
     }
 
     def http = new HTTPBuilder(config?.endpoint)
@@ -28,24 +27,22 @@ class NexmoService {
         def message = data?.messages[0]
         def statusCode = message?.status
         if (statusCode != "0") {
-          def error = "${message?."error-text"}: ${getMessage("sms", statusCode, "An error occurred sending the SMS.")}"
-          log.error("An error occurred sending the SMS: ${error}")
+          def error = getMessage("nexmo.sms.status.${statusCode}", [message?."error-text"], getMessage("nexmo.sms.error.default"))
           throw new NexmoException(error)
         }
-        log.info("SMS was successfully sent.")
+        log.info(getMessage("nexmo.sms.success"))
         return [status: message?.status, id: message?."message-id"]
       }
       response.failure = { resp, data ->
-        log.error("An error occurred sending the SMS.")
-        throw new NexmoException("A ${resp?.status} error was encountered.")
+        def error = getMessage("nexmo.sms.error.response", [resp?.status], getMessage("nexmo.sms.error.default"))
+        throw new NexmoException(error)
       }
     }
   }
 
-  def call(String to, String text, String from="") {
+  def call(String to, String text, String from="") throws NexmoException {
     if (!to || !text) {
-      log.error("A required parameter was not supplied. Not making.")
-      throw new NexmoException("A required parameter was not supplied. Not making call.")
+      throw new NexmoException(getMessage("nexmo.call.error.missing.param"))
     }
 
     def http = new HTTPBuilder(config?.endpoint)
@@ -58,16 +55,15 @@ class NexmoService {
       response.success = { resp, data ->
         def statusCode = data?.status
         if (statusCode != "0") {
-          def error = "${data?."error-text"}: ${getMessage("call", statusCode, "An error occurred making the phone call.")}"
-          log.error("An error occurred making the call: ${error}")
+          def error = getMessage("nexmo.call.status.${statusCode}", [data?."error-text"], getMessage("nexmo.call.error.default"))
           throw new NexmoException(error)
         }
-        log.info("Call was successfully sent.")
+        log.info(getMessage("nexmo.call.success"))
         return [status: data?.status, id: data?."call-id"]
       }
       response.failure = { resp, data ->
-        log.error("An error occurred making the call.")
-        throw new NexmoException("A ${resp?.status} error was encountered.")
+        def error = getMessage("nexmo.call.error.response", [resp?.status], getMessage("nexmo.call.error.default"))
+        throw new NexmoException(error)
       }
     }
   }
@@ -76,9 +72,9 @@ class NexmoService {
     return grailsApplication.config?.nexmo
   }
 
-  private String getMessage(String type, String code, String defaultMessage) {
-    if (code) {
-      return messageSource.getMessage("nexmo.${type}.status.${code}", [].toArray(), defaultMessage, LocaleContextHolder.locale)
+  private String getMessage(String code, List args=[], String defaultMessage="") {
+    if (messageSource.resolveCode(code, LCH.locale)) {
+      return messageSource.getMessage(code, args.toArray(), LCH.locale)
     }
     return defaultMessage
   }
