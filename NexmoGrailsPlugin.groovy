@@ -2,7 +2,7 @@ import grails.util.Environment
 
 class NexmoGrailsPlugin {
   // the plugin version
-  def version = "0.1"
+  def version = "1.0"
   // the version or versions of Grails the plugin is designed for
   def grailsVersion = "2.3 > *"
   // resources that are excluded from plugin packaging
@@ -12,8 +12,8 @@ class NexmoGrailsPlugin {
   def author = "Casey Scarborough"
   def authorEmail = "caseyscarborough@gmail.com"
   def description = '''\
-The Nexmo Plugin gives applications SMS (Text Messaging) and Voice functionality. It allows an application to receive
-and send text messages, as well as sending automated voice calls.
+The Nexmo Plugin gives Grails applications SMS (Text Messaging) and Voice functionality. It allows an application to receive
+and send text messages, as well as sending automated voice calls using Nexmo's API.
 '''
 
   // URL to the plugin's documentation
