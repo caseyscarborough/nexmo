@@ -2,6 +2,16 @@
 
 This plugin gives any Grails application the ability to send SMS messages and outgoing phone calls with text-to-speech using [Nexmo's API](https://www.nexmo.com/).
 
+## Installation
+
+You can add this plugin to your application by adding the following to your `BuildConfig.groovy file`:
+
+```groovy
+plugins {
+  compile ":nexmo:1.0" // Add this line
+}
+```
+
 ## Methods
 
 #### [__sendSms(String to, String text, String from)__](https://github.com/caseyscarborough/nexmo/blob/master/grails-app/services/grails/plugin/nexmo/NexmoService.groovy#L30)
